@@ -5,9 +5,9 @@ const { promisify } = require('util');
 const execAsync = promisify(exec);
 const maxRetries = 3; // Maximum number of retries
 const retryDelay = 1000; // Delay between retries in milliseconds
-const csvFilePath = 'VMBackup-need-upgrade-2024-04-07.csv'; // Specify the path to your CSV file
-const packageFilePath = '../modern-allure-ui/package.json'; // Specify the path to your package.json file
-const projectDirectory = '../modern-allure-ui'; // Specify the path to your project file
+const csvFilePath = ''; // Specify the path to your CSV file
+const packageFilePath = ''; // Specify the path to your package.json file
+const projectDirectory = ''; // Specify the path to your project file
 
 async function execWithRetryAsync(command, key, retries = maxRetries){
         await execAsync(command)
