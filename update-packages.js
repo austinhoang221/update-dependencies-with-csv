@@ -6,27 +6,25 @@ const execAsync = promisify(exec);
 const maxRetries = 3; // Maximum number of retries
 const retryDelay = 1000; // Delay between retries in milliseconds
 const csvFilePath = ''; // Specify the path to your CSV file
-const packageFilePath = ''; // Specify the path to your package.json file
 const projectDirectory = ''; // Specify the path to your project file
 
-async function execWithRetryAsync(command, key, retries = maxRetries){
-        await execAsync(command)
-        .then(({ stdout, stderr }) => {
-            console.log("Done: " + key)
-            if (stderr) {
-                console.error("Error:" + stderr);
-            }
-            return stdout;
-        })
-        .catch(async error => {
-            if (retries > 0) {
-                console.log(`Retry ${maxRetries - retries + 1}/${maxRetries} for command: ${command}`);
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
-                return execWithRetryAsync(command, retries - 1);
-            } else {
-                throw error;
-            }
-        })
+async function execWithRetryAsync(command, key, retries = maxRetries) {
+    try {
+        const { stdout, stderr } = await execAsync(command);
+        console.log("Done: " + key);
+        if (stderr) {
+            console.error("Error: " + stderr);
+        }
+        return stdout;
+    } catch (error) {
+        if (retries > 0) {
+            console.log(`Retry ${maxRetries - retries + 1}/${maxRetries} for command: ${command}`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+            return execWithRetryAsync(command, key, retries - 1);
+        } else {
+            throw error;
+        }
+    }
 }
 
 function readCsvFile(filePath) {
@@ -53,7 +51,7 @@ function readCsvFile(filePath) {
 readCsvFile(csvFilePath)
     .then(async (dependenciesMap) => {
         try {
-            const packageJson = JSON.parse(fs.readFileSync(packageFilePath, 'utf8'));
+            const packageJson = JSON.parse(fs.readFileSync(packageFilePath + "/package.json", 'utf8'));
             // Extract dependencies
             const dependencies = packageJson.dependencies || {};
             const devDependencies = packageJson.devDependencies || {};
@@ -62,7 +60,7 @@ readCsvFile(csvFilePath)
             const promises = [];
             for (const [key, value] of dependenciesMap) {
                 if ((dependencyNames.includes(key) || devDependenciesNames.includes(key)) && value) {
-                    const upgradeCommand = `cd ${projectDirectory} && yarn upgrade ${key}@${value} --verbose`;
+                    const upgradeCommand = `cd ${projectDirectory} && yarn upgrade ${key}@${value}`;
                     console.info(`Start upgrading: ${key} to ${value}`);
                     promises.push(await execWithRetryAsync(upgradeCommand, key));
                 }
