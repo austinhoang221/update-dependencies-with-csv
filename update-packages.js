@@ -5,8 +5,8 @@ const { promisify } = require('util');
 const execAsync = promisify(exec);
 const maxRetries = 3; // Maximum number of retries
 const retryDelay = 1000; // Delay between retries in milliseconds
-const csvFilePath = ''; // Specify the path to your CSV file
-const projectDirectory = ''; // Specify the path to your project file
+const csvFilePath = 'VMBackup-need-upgrade-2024-08-01.csv'; // Specify the path to your CSV file
+const projectDirectory = '../modern-allure-ui'; // Specify the path to your project file
 
 async function execWithRetryAsync(command, key, retries = maxRetries) {
     try {
@@ -51,7 +51,7 @@ function readCsvFile(filePath) {
 readCsvFile(csvFilePath)
     .then(async (dependenciesMap) => {
         try {
-            const packageJson = JSON.parse(fs.readFileSync(packageFilePath + "/package.json", 'utf8'));
+            const packageJson = JSON.parse(fs.readFileSync(projectDirectory + "/package.json", 'utf8'));
             // Extract dependencies
             const dependencies = packageJson.dependencies || {};
             const devDependencies = packageJson.devDependencies || {};
